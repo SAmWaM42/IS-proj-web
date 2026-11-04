@@ -22,10 +22,14 @@ Import this repository into a dedicated Vercel project and use the repository ro
 Never commit credentials, `SEED`, raw participant tokens, or generated token maps. Never include them in the desktop application or common participant ZIP.
 
 ### Generate participant credentials
-Set `SEED` locally to the exact value configured in Vercel, then run:
+Generate a high-entropy seed (for example, with `openssl rand -hex 32`), store that exact value in Vercel as `SEED`, and provide it locally without putting it in shell history:
 
 ```bash
-SEED='your-server-seed' python3 scripts/generate_participant_tokens.py
+read -rsp "SEED: " SEED
+echo
+export SEED
+python3 scripts/generate_participant_tokens.py
+unset SEED
 ```
 
 The script generates one random token for each participant (default: 1–20) and prints:
