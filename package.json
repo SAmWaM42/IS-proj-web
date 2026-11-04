@@ -3,13 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vercel dev",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "googleapis": "^144.0.0"
-  },
+  "scripts": { "dev": "vercel dev", "typecheck": "tsc --noEmit" },
+  "dependencies": { "googleapis": "^144.0.0" },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@vercel/node": "^3.2.29",
