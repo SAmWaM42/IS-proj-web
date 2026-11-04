@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { google } from "googleapis";
-import { timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 type Submission = {
   schema_version: 1;
@@ -39,19 +39,36 @@ function parseSubmission(value: unknown): Submission | null {
   return item as Submission;
 }
 
+/**
+ * PARTICIPANT_TOKENS stores HMAC-SHA256 digests, keyed by participant number.
+ * SEED is the server-only HMAC key. Raw participant tokens are never stored
+ * in Vercel and must never be shipped in the common application package.
+ */
 function authenticate(participantNumber: number, supplied: string): boolean {
+  const seed = process.env.SEED;
   const configured = process.env.PARTICIPANT_TOKENS;
-  if (!configured) return false;
-  let tokens: Record<string, string>;
-  try { tokens = JSON.parse(configured) as Record<string, string>; }
-  catch { return false; }
+  if (!seed || !configured || !supplied) return false;
 
-  const expected = tokens[String(participantNumber)];
-  if (typeof expected !== "string" || !expected || !supplied) return false;
-  const expectedBytes = Buffer.from(expected);
-  const suppliedBytes = Buffer.from(supplied);
-  return expectedBytes.length === suppliedBytes.length &&
-    timingSafeEqual(expectedBytes, suppliedBytes);
+  let tokens: Record<string, unknown>;
+  try {
+    const parsed: unknown = JSON.parse(configured);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return false;
+    tokens = parsed as Record<string, unknown>;
+  } catch {
+    return false;
+  }
+
+  const expectedHex = tokens[String(participantNumber)];
+  if (typeof expectedHex !== "string" || !/^[a-f0-9]{64}$/i.test(expectedHex)) {
+    return false;
+  }
+
+  const message = `animal-agent-participant-token:v1:${participantNumber}:${supplied}`;
+  const suppliedDigest = createHmac("sha256", seed).update(message, "utf8").digest();
+  const expectedDigest = Buffer.from(expectedHex, "hex");
+
+  return expectedDigest.length === suppliedDigest.length &&
+    timingSafeEqual(expectedDigest, suppliedDigest);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
