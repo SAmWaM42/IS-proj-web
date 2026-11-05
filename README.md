@@ -14,8 +14,12 @@ Import this repository into a dedicated Vercel project and use the repository ro
 
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
-- `GOOGLE_REFRESH_TOKEN`
-- `GOOGLE_DRIVE_FOLDER_ID`
+- `GOOGLE_REFRESH_TOKEN`: long-lived OAuth refresh token obtained during the temporary administrator setup.
+- `GOOGLE_DRIVE_FOLDER_ID`: folder selected by the administrator through Google Picker.
+- `GOOGLE_REDIRECT_URI`: exact HTTPS callback URL `/api/admin/google/callback` registered in the Google OAuth client.
+- `GOOGLE_PICKER_API_KEY`: API key with the Google Picker API enabled; restrict it to the Preview site referrer.
+- `GOOGLE_CLOUD_PROJECT_NUMBER`: numeric Google Cloud project number used as the Picker App ID.
+- `ADMIN_SETUP_SECRET`: high-entropy temporary administrator setup password; remove after setup.
 - `SEED`: a high-entropy server-only secret used as the HMAC-SHA256 key for participant-token validation.
 - `PARTICIPANT_TOKENS`: JSON object mapping participant numbers to 64-character hexadecimal HMAC-SHA256 digests. Do not put raw participant tokens in this variable.
 
@@ -40,7 +44,24 @@ Treat the output as sensitive. Send each participant only their own token alongs
 
 After deployment, place the deployed `/api/submissions` URL in the participant application's `Data/Study/upload-config.json` in the separate IS-proj repository.
 
-Enable the Google Drive API and authorise the account owning the destination folder. Use a refresh token with sufficient Drive scope.
+### One-time Google Drive authorisation (temporary setup page)
+
+The backend uses the narrow `https://www.googleapis.com/auth/drive.file` scope, not the broad full-Drive scope. This is not a literal folder-only OAuth scope: the administrator selects the dedicated destination folder through Google Picker, and the app can create and manage files it creates there. It does not receive blanket access to unrelated Drive files. Start with a new, empty folder dedicated to this study.
+
+1. In the same Google Cloud project, enable **Google Drive API** and **Google Picker API**.
+2. Configure the OAuth consent screen and add the administrator Google account as a test user if the app is in Testing.
+3. Create/use an OAuth client of type **Web application**. Add the exact value of `GOOGLE_REDIRECT_URI` to its authorised redirect URIs. It must be the HTTPS URL for this deployment's `/api/admin/google/callback`.
+4. Create a Google API key for Picker. Restrict it to the Google Picker API and HTTP referrers for the Preview deployment. Record the numeric Cloud project number for `GOOGLE_CLOUD_PROJECT_NUMBER`.
+5. Set the temporary environment variables in Vercel Preview for the setup branch: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `GOOGLE_PICKER_API_KEY`, `GOOGLE_CLOUD_PROJECT_NUMBER`, and a high-entropy `ADMIN_SETUP_SECRET`. Do not place secrets in source control or chat.
+6. Deploy the branch and open `/admin-drive-setup.html`. Enter the setup secret, sign in as the Drive owner, approve the requested `drive.file` permission, then select the dedicated empty folder in Picker.
+7. The callback page displays `GOOGLE_REFRESH_TOKEN` and `GOOGLE_DRIVE_FOLDER_ID` once. Copy them directly into Vercel Preview environment variables. Never paste the refresh token into ChatGPT, commit it, or include it in a participant package.
+8. Redeploy the Preview deployment so the submission function receives the variables. Then run the smoke test below and verify created JSON files appear in the selected folder.
+
+The callback URL must exactly match the OAuth client's registered redirect URI. If Google returns no refresh token, revoke the app's previous grant from the Google Account security page and repeat the consent flow. Do not silently reuse an old broad `drive` grant; verify that the granted scope is `drive.file`.
+
+**Cleanup after successful verification:** remove `public/admin-drive-setup.html`, `api/admin/google/start.ts`, and `api/admin/google/callback.ts` in a follow-up commit; remove `ADMIN_SETUP_SECRET`, `GOOGLE_REDIRECT_URI`, `GOOGLE_PICKER_API_KEY`, and `GOOGLE_CLOUD_PROJECT_NUMBER` from Vercel. Keep `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, and `GOOGLE_DRIVE_FOLDER_ID` for the participant submission endpoint. The setup branch is deliberately separate so this temporary surface is not merged to the production branch.
+
+The setup page exposes the refresh token only to the administrator's browser over HTTPS after OAuth consent. Treat that page and its output as sensitive until it is removed.
 
 ## API
 `POST /api/submissions` accepts schema version 1 questionnaire responses. Required headers: `Authorization: Bearer <participant-token>`, `Content-Type: application/json`, and `Idempotency-Key` matching `submission_id`.
