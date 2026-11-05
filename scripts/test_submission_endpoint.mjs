@@ -18,7 +18,8 @@ const required = [
   "SUBMISSIONS_URL",
   "TEST_PARTICIPANT_NUMBER",
   "TEST_PARTICIPANT_TOKEN",
-  "TEST_DEPLOYMENT_CONFIRMATION"
+  "TEST_DEPLOYMENT_CONFIRMATION",
+  "VERCEL_OIDC_TOKEN"
 ];
 for (const key of required) {
   if (!process.env[key]) {
@@ -79,7 +80,17 @@ const payload = (session) => ({
 let failures = 0;
 async function check(name, expectedStatus, request, expectedStored) {
   try {
-    const response = await fetch(endpoint, request);
+    const headers = new Headers(request?.headers ?? {});
+    headers.set(
+      "x-vercel-trusted-oidc-idp-token",
+      process.env.VERCEL_OIDC_TOKEN
+    );
+
+    const response = await fetch(endpoint, {
+      ...request,
+      headers,
+      redirect: "manual"
+    });
     let body;
     try { body = await response.json(); }
     catch { body = null; }
@@ -116,14 +127,14 @@ for (const session of [1, 2]) {
 }
 
 const valid = payload(1);
-await check("invalid schema version", 400, post({...valid, schema_version: 99}), false);
+await check("invalid schema version", 400, post({ ...valid, schema_version: 99 }), false);
 await check("invalid A/B condition assignment", 400,
-  post({...valid, condition: valid.condition === "A" ? "B" : "A"}), false);
+  post({ ...valid, condition: valid.condition === "A" ? "B" : "A" }), false);
 await check("mismatched idempotency key", 400,
   post(valid, token, "not-the-submission-id"), false);
 await check("invalid participant token", 401,
   post(valid, "invalid-test-token"), false);
-await check("method other than POST", 405, {method: "GET"}, false);
+await check("method other than POST", 405, { method: "GET" }, false);
 
 if (failures > 0) {
   console.error(`\n${failures} smoke test(s) failed.`);
