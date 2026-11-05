@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import { google } from "googleapis";
 
 const DRIVE_FILE_SCOPE = "https://www.googleapis.com/auth/drive.file";
