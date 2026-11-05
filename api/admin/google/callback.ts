@@ -12,7 +12,8 @@ function cookieValue(header: string | undefined): string | null {
   return null;
 }
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+  const entities: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" };
+  return value.replace(/[&<>\"']/g, (c) => entities[c] ?? c);
 }
 function messagePage(message: string): string {
   return "<!doctype html><html lang='en'><meta charset='utf-8'><title>Drive setup</title><body style='font:16px system-ui;max-width:700px;margin:4rem auto;padding:0 1rem'><h1>Animal Agent Drive setup</h1><p>" + escapeHtml(message) + "</p></body></html>";
