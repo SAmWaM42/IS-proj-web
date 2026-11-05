@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 /**
- * End-to-end smoke test for a dedicated Animal Agent backend Preview deployment.
+ * End-to-end smoke test for an Animal Agent backend Preview deployment.
  *
  * Required environment:
  *   SUBMISSIONS_URL
  *   TEST_PARTICIPANT_NUMBER
  *   TEST_PARTICIPANT_TOKEN
  *   TEST_DEPLOYMENT_CONFIRMATION=DEDICATED_PREVIEW_AND_TEST_DRIVE
+ *     or SHARED_PREVIEW_FOLDER_ACKNOWLEDGED when intentionally reusing a Drive folder.
  *
- * This script only uses synthetic questionnaire data. Never run it against
- * production or with a real participant's token.
+ * Shared-folder mode writes synthetic test submissions to the Drive folder
+ * configured for this Preview deployment. It does not select or change that folder.
+ * Never run against production or with a real participant's token.
  */
 
 const required = [
@@ -24,9 +26,24 @@ for (const key of required) {
     process.exit(2);
   }
 }
-if (process.env.TEST_DEPLOYMENT_CONFIRMATION !== "DEDICATED_PREVIEW_AND_TEST_DRIVE") {
-  console.error("Refusing to run without explicit confirmation of a dedicated Preview deployment and test Drive folder.");
+const confirmation = process.env.TEST_DEPLOYMENT_CONFIRMATION;
+const allowedConfirmations = new Set([
+  "DEDICATED_PREVIEW_AND_TEST_DRIVE",
+  "SHARED_PREVIEW_FOLDER_ACKNOWLEDGED"
+]);
+if (!allowedConfirmations.has(confirmation)) {
+  console.error(
+    "Refusing to run. Set TEST_DEPLOYMENT_CONFIRMATION to " +
+    "DEDICATED_PREVIEW_AND_TEST_DRIVE (isolated test folder) or " +
+    "SHARED_PREVIEW_FOLDER_ACKNOWLEDGED (existing shared folder)."
+  );
   process.exit(2);
+}
+if (confirmation === "SHARED_PREVIEW_FOLDER_ACKNOWLEDGED") {
+  console.warn(
+    "WARNING: shared-folder test mode is enabled. Synthetic test submissions " +
+    "will be written to the Google Drive folder configured for this Preview deployment."
+  );
 }
 
 const endpoint = process.env.SUBMISSIONS_URL;
