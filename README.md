@@ -49,6 +49,46 @@ Required metadata: deterministic `submission_id` (`P{participant}-S{session}`), 
 
 Drive lookup-before-create handles ordinary retries after lost acknowledgements but is not atomic; simultaneous duplicate requests can race. A database unique constraint is needed for a strict guarantee. Send questionnaire responses only, not raw interaction text, memory records, affect traces, Q-table data, or diagnostic logs.
 
+
+## Backend smoke test
+
+Run this only against a dedicated Vercel **Preview** deployment connected to a
+dedicated test Google Drive folder. Do not point it at a production deployment.
+
+The script submits two dummy questionnaire records (sessions 1 and 2) for one
+test participant, repeats each submission to exercise the idempotent retry path,
+and checks invalid schema, invalid A/B assignment, invalid idempotency key,
+invalid token, and a non-POST request.
+
+The test deliberately uses synthetic response data only. It does not use real
+participant responses or include interaction text, memory, affect, or Q-table
+data.
+
+Set the test values in your terminal without putting the token in shell history:
+
+```bash
+read -rp "Preview submissions URL: " SUBMISSIONS_URL
+read -rp "Test participant number: " TEST_PARTICIPANT_NUMBER
+read -rsp "Test participant token: " TEST_PARTICIPANT_TOKEN
+echo
+export SUBMISSIONS_URL TEST_PARTICIPANT_NUMBER TEST_PARTICIPANT_TOKEN
+export TEST_DEPLOYMENT_CONFIRMATION="DEDICATED_PREVIEW_AND_TEST_DRIVE"
+npm run test:integration
+unset TEST_PARTICIPANT_TOKEN TEST_PARTICIPANT_NUMBER SUBMISSIONS_URL TEST_DEPLOYMENT_CONFIRMATION
+```
+
+Run it once with an odd test participant number and once with an even test
+participant number to exercise both A/B assignment orders. The participant
+token must be generated for the exact participant number being tested and its
+digest must be present in that Preview deployment's `PARTICIPANT_TOKENS`.
+
+A successful run verifies API responses, including that repeating the same
+submission ID is accepted. It does not by itself prove that Drive contains
+exactly one file: inspect the dedicated test folder and confirm there is one
+`Pxx-S1.json` and one `Pxx-S2.json` for each test participant. The current
+Drive lookup-then-create implementation handles ordinary retries but is not
+atomic under simultaneous duplicate requests.
+
 ## Local checks
 ```bash
 npm install
