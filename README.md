@@ -14,8 +14,12 @@ Import this repository into a dedicated Vercel project and use the repository ro
 
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
-- `GOOGLE_REFRESH_TOKEN`
-- `GOOGLE_DRIVE_FOLDER_ID`
+- `GOOGLE_REFRESH_TOKEN`: long-lived OAuth refresh token obtained during the temporary administrator setup.
+- `GOOGLE_DRIVE_FOLDER_ID`: folder selected by the administrator through Google Picker.
+- `GOOGLE_REDIRECT_URI`: exact HTTPS callback URL `/api/admin/google/callback` registered in the Google OAuth client.
+- `GOOGLE_PICKER_API_KEY`: API key with the Google Picker API enabled; restrict it to the Preview site referrer.
+- `GOOGLE_CLOUD_PROJECT_NUMBER`: numeric Google Cloud project number used as the Picker App ID.
+- `ADMIN_SETUP_SECRET`: high-entropy temporary administrator setup password; remove after setup.
 - `SEED`: a high-entropy server-only secret used as the HMAC-SHA256 key for participant-token validation.
 - `PARTICIPANT_TOKENS`: JSON object mapping participant numbers to 64-character hexadecimal HMAC-SHA256 digests. Do not put raw participant tokens in this variable.
 
@@ -40,7 +44,9 @@ Treat the output as sensitive. Send each participant only their own token alongs
 
 After deployment, place the deployed `/api/submissions` URL in the participant application's `Data/Study/upload-config.json` in the separate IS-proj repository.
 
-Enable the Google Drive API and authorise the account owning the destination folder. Use a refresh token with sufficient Drive scope.
+### Google Drive runtime configuration
+
+The participant submission endpoint uses the Google Drive API with the `drive.file` scope. Keep `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, and `GOOGLE_DRIVE_FOLDER_ID` configured in Vercel for the deployment environment. The refresh token and folder ID were obtained through the one-time administrator setup flow, which has now been removed from this branch. Do not commit or share these values. The OAuth client must remain a **Web application** client; its redirect URI was needed only for the temporary setup flow and is no longer used by the participant submission endpoint.
 
 ## API
 `POST /api/submissions` accepts schema version 1 questionnaire responses. Required headers: `Authorization: Bearer <participant-token>`, `Content-Type: application/json`, and `Idempotency-Key` matching `submission_id`.
