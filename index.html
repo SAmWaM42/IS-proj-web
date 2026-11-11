@@ -33,7 +33,7 @@
 </head>
 <body class="min-h-screen selection:bg-cyan selection:text-slate-950">
   <header class="sticky top-0 z-40 border-b border-slate-800/80 glass">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-5">
       <a href="#" class="flex items-center gap-3" aria-label="AnimalAgent home">
         <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan to-mint text-lg text-slate-950"><i class="fa-solid fa-paw"></i></span>
         <span><span class="block font-extrabold tracking-tight text-white">AnimalAgent</span><span class="block font-mono text-[10px] tracking-wider text-slate-400">IS-2 COMPANION ARCHITECTURE</span></span>
@@ -43,8 +43,18 @@
         <a class="hover:text-cyan" href="#downloads">Downloads</a>
         <a class="hover:text-cyan" href="#quickstart">Quickstart</a>
       </nav>
-      <a href="#downloads" class="rounded-lg bg-gradient-to-r from-cyan to-mint px-4 py-2 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5">Get the client <i class="fa-solid fa-arrow-down ml-1"></i></a>
+      <a href="#downloads" class="hidden rounded-lg bg-gradient-to-r from-cyan to-mint px-4 py-2 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5 sm:inline-flex">Get the client <i class="fa-solid fa-arrow-down ml-1"></i></a>
+      <button id="mobile-menu-toggle" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-200 hover:border-cyan hover:text-cyan md:hidden" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav">
+        <i id="mobile-menu-icon" class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
     </div>
+    <nav id="mobile-nav" class="hidden border-t border-slate-800 px-4 py-3 md:hidden" aria-label="Mobile navigation">
+      <div class="mx-auto flex max-w-7xl flex-col gap-1 text-sm text-slate-300">
+        <a class="rounded-lg px-3 py-3 hover:bg-slate-800 hover:text-cyan" href="#features">Architecture</a>
+        <a class="rounded-lg px-3 py-3 hover:bg-slate-800 hover:text-cyan" href="#downloads">Downloads</a>
+        <a class="rounded-lg px-3 py-3 hover:bg-slate-800 hover:text-cyan" href="#quickstart">Quickstart</a>
+      </div>
+    </nav>
   </header>
 
   <main>
@@ -55,7 +65,7 @@
         <div class="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan/20 bg-cyan/5 px-4 py-2 font-mono text-xs text-cyan-200">
           <span class="h-2 w-2 rounded-full bg-emerald-400"></span> SIMULATED COMPANION-ANIMAL RESEARCH
         </div>
-        <h1 class="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">Exploring believable<br><span class="gradient-text">adaptive companion behaviour.</span></h1>
+        <h1 class="text-3xl font-extrabold leading-tight tracking-tight text-white min-[400px]:text-4xl sm:text-6xl">Exploring believable<br class="hidden sm:block"><span class="gradient-text"> adaptive companion behaviour.</span></h1>
         <p class="mx-auto mt-7 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">AnimalAgent is a simulated animal-companion research system investigating how persistent semantic memory and affective state can shape an agent's behaviour over repeated interactions.</p>
         <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a href="/api/downloads/latest?platform=linux" class="glow inline-flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-cyan to-mint px-7 py-4 font-bold text-slate-950 transition hover:-translate-y-0.5 sm:w-auto">
@@ -162,6 +172,28 @@
   </footer>
 
   <script>
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileNav = document.getElementById('mobile-nav');
+    const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+    const closeMobileMenu = () => {
+      mobileNav.classList.add('hidden');
+      mobileMenuToggle.setAttribute('aria-expanded', 'false');
+      mobileMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+      mobileMenuIcon.className = 'fa-solid fa-bars';
+    };
+    mobileMenuToggle.addEventListener('click', () => {
+      const isOpen = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) {
+        closeMobileMenu();
+      } else {
+        mobileNav.classList.remove('hidden');
+        mobileMenuToggle.setAttribute('aria-expanded', 'true');
+        mobileMenuToggle.setAttribute('aria-label', 'Close navigation menu');
+        mobileMenuIcon.className = 'fa-solid fa-xmark';
+      }
+    });
+    mobileNav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileMenu));
+
     const curlCommand = () => 'curl -fL "' + window.location.origin + '/api/downloads/latest?platform=linux" -o AnimalAgent-Linux.zip';
     const quickstart = () => [
       '# Download the Linux package',
