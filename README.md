@@ -95,3 +95,43 @@ npm install
 npm run typecheck
 npx vercel dev
 ```
+
+## Participant application downloads
+
+The participant application binaries are distributed as assets attached to
+GitHub Releases in the separate `SAmWaM42/IS-proj` repository. This web
+repository provides a stable redirect endpoint; it does not store or proxy the
+binary files.
+
+`GET /api/downloads/latest?platform=linux` redirects to the newest published
+release that contains `AnimalAgent-Linux.zip`. Published prereleases are
+included by default so controlled release-candidate testing can use this
+endpoint. Use `channel=stable` to exclude prereleases:
+
+```bash
+curl -fL "https://is-proj-web.vercel.app/api/downloads/latest?platform=linux" \
+  -o AnimalAgent-Linux.zip
+
+# Stable releases only:
+curl -fL "https://is-proj-web.vercel.app/api/downloads/latest?platform=linux&channel=stable" \
+  -o AnimalAgent-Linux.zip
+```
+
+The endpoint also recognises `platform=windows` and looks for
+`AnimalAgent-Windows.zip` when a Windows release is published. Until that
+asset exists, the endpoint returns HTTP 404 for Windows.
+
+The default `latest` channel selects the newest published release (including
+prereleases) that contains the requested platform asset. The `stable`
+channel selects the newest non-prerelease release containing that asset.
+Draft releases are never exposed. The endpoint caches release metadata briefly
+and redirects directly to GitHub's release asset; no GitHub credentials or
+participant tokens are required to download the public application package.
+
+A release must attach the expected asset filename exactly:
+- Linux: `AnimalAgent-Linux.zip`
+- Windows: `AnimalAgent-Windows.zip`
+
+Do not attach participant credentials, questionnaire responses, or other
+private study data to a public GitHub Release.
+
