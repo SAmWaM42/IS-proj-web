@@ -18,7 +18,7 @@ The C++/SFML participant client is in [`SAmWaM42/IS-proj`](https://github.com/SA
 - Google Drive access uses the `googleapis` client and OAuth refresh token held in Vercel environment variables.
 - `package.json` and the Vercel project configuration define the deployment/build environment.
 
-Deploy this repository to the dedicated Vercel project with the repository root as the project root. The production deployment URL is configured separately from the participant client. Do not commit credentials or change production environment variables without explicit approval.
+Deploy this repository to the dedicated Vercel project with the repository root as the project root. The production frontend is available at [https://is-proj-web.vercel.app/](https://is-proj-web.vercel.app/). It provides separate Linux and Windows participant-package downloads through the release redirect endpoint. Do not commit credentials or change production environment variables without explicit approval.
 
 ## Questionnaire submission API
 
@@ -66,6 +66,23 @@ Never commit these values, raw participant tokens, token maps, OAuth secrets or 
 `channel=latest` includes published prereleases; `channel=stable` excludes prereleases. The endpoint chooses the newest eligible release that actually contains the requested platform asset. It does not host or proxy the ZIP itself.
 
 The redirect only works once a matching asset has been published to a GitHub Release. A CI workflow artifact is not automatically a GitHub Release asset.
+
+### Current published release — 12 November 2026
+
+The current release candidate is [Animal Agent v0.1.1-rc.1 (tag `v0.1.0-rc.1`)](https://github.com/SAmWaM42/IS-proj/releases/tag/v0.1.0-rc.1). It contains both platform assets:
+
+| Platform | Release asset | SHA-256 |
+|---|---|---|
+| Linux x86_64 | `AnimalAgent-Linux.zip` | `41b89c707f1edb0cf04b7c0a04736de8a0ced1bd40a709be862603c8fd9596fa` |
+| Windows x64 | `AnimalAgent-Windows.zip` | `908a25abcb8404c2e8fee04c35816545c774d182f7b35bc181c9d4ae803f1e7f` |
+
+The Windows package was built by the merged GitHub Actions workflow and manually tested on a separate Windows computer without the project's development toolchain or separately installed application dependencies. The tested participant workflow covered login, both A/B questionnaires, distinct session submission IDs and Google Drive persistence. See the participant repository's [Windows validation record](https://github.com/SAmWaM42/IS-proj/blob/deployment/participant-client/Docs/25-windows-participant-manual-validation.md).
+
+The frontend's platform links are:
+- [Download Windows](https://is-proj-web.vercel.app/api/downloads/latest?platform=windows)
+- [Download Linux](https://is-proj-web.vercel.app/api/downloads/latest?platform=linux)
+
+The release includes a Linux asset, but this status note does not claim a new clean-machine Linux validation in the current Windows release-validation cycle.
 
 ## Testing
 
