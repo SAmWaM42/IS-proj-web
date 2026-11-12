@@ -61,6 +61,7 @@
           <a href="/api/downloads/latest?platform=linux" class="glow inline-flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-cyan to-mint px-7 py-4 font-bold text-slate-950 transition hover:-translate-y-0.5 sm:w-auto">
             <i class="fa-solid fa-download text-lg"></i><span class="text-left"><span class="block">Download for Linux</span><span class="block font-mono text-[10px] font-medium uppercase tracking-wider opacity-70">Linux x86_64 package</span></span>
           </a>
+          <a href="/api/downloads/latest?platform=windows" class="glass inline-flex w-full items-center justify-center gap-3 rounded-xl border border-blue-400/30 px-6 py-4 font-bold text-blue-200 transition hover:-translate-y-0.5 hover:border-blue-300 sm:w-auto"><i class="fa-brands fa-windows text-lg"></i><span class="text-left"><span class="block">Download for Windows</span><span class="block font-mono text-[10px] font-medium uppercase tracking-wider text-blue-200/70">Windows 10 / 11 · x64</span></span></a>
           <a href="https://github.com/SAmWaM42/IS-proj/tree/Dev" target="_blank" rel="noreferrer" class="glass inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800/70 sm:w-auto"><i class="fa-brands fa-github"></i> View source repository</a>
         </div>
         <div class="mx-auto mt-8 flex max-w-2xl items-center gap-3 rounded-xl glass p-3 text-left">
@@ -98,20 +99,20 @@
           <article class="glass rounded-2xl p-7 sm:p-8">
             <div class="flex items-start justify-between gap-4">
               <div class="flex items-center gap-4"><span class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 text-2xl text-blue-300"><i class="fa-brands fa-windows"></i></span><div><h3 class="text-lg font-bold text-white">Windows 10 / 11</h3><p class="text-xs text-slate-400">Windows x64 package</p></div></div>
-              <span class="rounded-full border border-slate-700 bg-slate-800/70 px-3 py-1 text-[11px] font-semibold text-slate-300">Coming soon</span>
+              <span class="rounded-full border border-emerald-700/50 bg-emerald-950/60 px-3 py-1 text-[11px] font-semibold text-emerald-300">Package ready</span>
             </div>
             <ul class="my-7 space-y-3 font-mono text-xs text-slate-300">
-              <li><i class="fa-solid fa-code mr-2 text-slate-500"></i> Native Windows build target</li>
-              <li><i class="fa-solid fa-code mr-2 text-slate-500"></i> CMake-based build workflow</li>
-              <li><i class="fa-solid fa-code mr-2 text-slate-500"></i> Release package pending</li>
+              <li><i class="fa-solid fa-check mr-2 text-cyan"></i> Standalone Windows x64 application</li>
+              <li><i class="fa-solid fa-check mr-2 text-cyan"></i> Bundled Python / spaCy runtime</li>
+              <li><i class="fa-solid fa-check mr-2 text-cyan"></i> Manually tested participant workflow</li>
             </ul>
             <div class="flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-5">
               <span class="font-mono text-[11px] text-slate-500">AnimalAgent-Windows.zip</span>
-              <a href="/api/downloads/latest?platform=windows" class="font-semibold text-slate-300 hover:text-white">Check release <i class="fa-solid fa-arrow-right ml-1"></i></a>
+              <a href="/api/downloads/latest?platform=windows" class="font-semibold text-cyan hover:text-white">Download Windows <i class="fa-solid fa-arrow-right ml-1"></i></a>
             </div>
           </article>
         </div>
-        <p class="mt-5 text-center text-xs text-slate-500">If a platform package has not yet been attached to a published GitHub Release, its download endpoint returns a not-found response.</p>
+        <p class="mt-5 text-center text-xs text-slate-500">Both platform packages are available from the current release candidate. Download links resolve through the release endpoint to the matching GitHub Release asset.</p>
       </div>
     </section>
 
